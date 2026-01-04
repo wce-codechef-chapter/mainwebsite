@@ -2,39 +2,58 @@ import React from 'react';
 import { Calendar,Flame ,  Trophy } from 'lucide-react';
 import SectionHeader from './SectionHeader';
 
-const EventCard = ({ title, date, desc, tags, imageColor }) => (
-  <div className="group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 hover:border-teal-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-500/10 flex flex-col h-full">
-    <div className={`h-1.5 bg-gradient-to-r ${imageColor}`}></div>
-    <div className="p-8 flex-1 flex flex-col">
-      <div className="flex justify-between items-start mb-6">
-        <div className="inline-flex items-center px-3 py-1 rounded-full bg-slate-800 text-teal-300 text-xs font-bold uppercase tracking-wider border border-slate-700">
-          <Calendar className="w-3 h-3 mr-2" />
-          {date}
+const EventCard = ({ title, date, desc, tags, imageColor, link }) => {
+  // If link exists, wrap the card in <a>
+  const CardContent = (
+    <div className="group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 hover:border-teal-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-500/10 flex flex-col h-full cursor-pointer">
+      <div className={`h-1.5 bg-gradient-to-r ${imageColor}`}></div>
+      <div className="p-8 flex-1 flex flex-col">
+        <div className="flex justify-between items-start mb-6">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-slate-800 text-teal-300 text-xs font-bold uppercase tracking-wider border border-slate-700">
+            <Calendar className="w-3 h-3 mr-2" />
+            {date}
+          </div>
+
+          <div className="p-2 bg-slate-800 rounded-full transition-all duration-300 group-hover:scale-110 group-hover:bg-green-500/10 group-hover:shadow-[0_0_14px_rgba(34,197,94,0.2)]">
+            <Flame className="w-4 h-4 text-green-400/80 transition-all duration-300" />
+          </div>
         </div>
-<div className="p-2 bg-slate-800 rounded-full transition-all duration-300 group-hover:scale-110 group-hover:bg-green-500/10 group-hover:shadow-[0_0_14px_rgba(34,197,94,0.2)]">
-  <Flame className="w-4 h-4 text-green-400/80 transition-all duration-300" />
-</div>
 
+        <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-teal-400 transition-colors">
+          {title}
+        </h3>
 
+        <p className="text-slate-400 mb-8 leading-relaxed text-sm">{desc}</p>
 
-
-
-
-      </div>
-      <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-teal-400 transition-colors">{title}</h3>
-      <p className="text-slate-400 mb-8 leading-relaxed text-sm">
-        {desc}
-      </p>
-      <div className="flex flex-wrap gap-2 mt-auto">
-        {tags.map((tag, i) => (
-          <span key={i} className="text-xs px-2.5 py-1 rounded-md bg-slate-950 text-slate-500 border border-slate-800 font-mono">
-            #{tag}
-          </span>
-        ))}
+        <div className="flex flex-wrap gap-2 mt-auto">
+          {tags.map((tag, i) => (
+            <span
+              key={i}
+              className="text-xs px-2.5 py-1 rounded-md bg-slate-950 text-slate-500 border border-slate-800 font-mono"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+
+  if (link) {
+    return (
+      <a
+        href={link.startsWith("http") ? link : `https://${link}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block h-full"
+      >
+        {CardContent}
+      </a>
+    );
+  }
+
+  return CardContent;
+};
 
 const Events = () => {
  const eventsList = [
@@ -43,7 +62,9 @@ const Events = () => {
     date: "Oct 2, 2025",
     desc: "Flagship offline programming contest at Main CCF. 27 teams competed. Guest speaker: Mr. Vivek Gupta (ICPC Finalist).",
     tags: ["Contest", "Offline", "ICPC"],
-    imageColor: "from-teal-500 to-cyan-600"
+    imageColor: "from-teal-500 to-cyan-600",
+    link: "https://wcpc-2k25.vercel.app"
+    
   },
   {
     title: "C++ Bootcamp",
@@ -93,7 +114,9 @@ const Events = () => {
     date: "2026",
     desc: "Student-led sessions on advanced DSA with hands-on problem solving.",
     tags: ["DSA", "Learning", "Community"],
-    imageColor: "from-fuchsia-500 to-rose-600"
+    imageColor: "from-fuchsia-500 to-rose-600",
+    link: "https://cookbook30.netlify.app"
+
   }
 ];
 
