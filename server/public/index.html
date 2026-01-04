@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Member - CodeChef WCE</title>
+    <style>
+        /* CSS Reset & Dark Theme Base */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body {
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc; /* Slate 50 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Container */
+        .container {
+            background-color: #0f172a; /* Slate 900 */
+            padding: 2rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Header */
+        h2 { margin-bottom: 0.5rem; color: #38bdf8; }
+        p.subtitle { color: #94a3b8; margin-bottom: 2rem; font-size: 0.9rem; }
+
+        /* Form Groups */
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #cbd5e1; font-size: 0.9rem; font-weight: 500; }
+        
+        /* Inputs & Selects */
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #1e293b; /* Slate 800 */
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus { border-color: #38bdf8; }
+
+        /* File Input Styling */
+        input[type="file"] {
+            background-color: transparent;
+            border: 1px dashed #475569;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        /* Grid for smaller inputs */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        /* Button */
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #38bdf8; /* Sky 400 */
+            color: #0f172a;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        button:disabled { background-color: #64748b; cursor: not-allowed; }
+
+        /* Messages */
+        #message { margin-top: 1rem; text-align: center; font-size: 0.9rem; }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Add New Member</h2>
+        <p class="subtitle">Update the club database directly.</p>
+
+        <form id="memberForm">
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" required placeholder="ex. Srushti Garad">
+                </div>
+                <div class="form-group">
+                    <label>Passing Year</label>
+                    <input type="number" name="yearOfPassing" id="yearInput" required>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Board</label>
+                    <select name="board" id="boardSelect" required>
+                        <option value="Main">Main Board</option>
+                        <option value="Assistant">Assistant Board</option>
+                        <option value="Member">Member</option>
+                        <option value="Mentor">Mentor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Post</label>
+                    <select name="post" id="postSelect" required>
+                        </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>LinkedIn URL (Optional)</label>
+                <input type="url" name="linkedin" placeholder="https://linkedin.com/in/...">
+            </div>
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" name="github" placeholder="https://github.com/...">
+                </div>
+                <div class="form-group">
+                    <label>CodeChef URL</label>
+                    <input type="url" name="codechef" placeholder="https://codechef.com/users/...">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Profile Image</label>
+                <input type="file" name="image" required accept="image/png, image/jpeg, image/jpg">
+            </div>
+
+            <button type="submit" id="submitBtn">Add Member</button>
+            <p id="message"></p>
+        </form>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const mainPosts = ["President", "Vice President", "CP Lead", "Social Lead", "CP Executive", "Design Head", "Revenue Manager", "Web Developer", "Secretary", "Club Service Director"];
+        const assistantPosts = ["Assistant Secretary", "Assistant Revenue Manager", "Public Relationship Officer", "Assistant Designer", "Assistant Editor", "Event Manager", "Assistant CP Executive", "Assistant Member"];
+        
+        // --- Elements ---
+        const boardSelect = document.getElementById('boardSelect');
+        const postSelect = document.getElementById('postSelect');
+        const yearInput = document.getElementById('yearInput');
+        const form = document.getElementById('memberForm');
+        const messageEl = document.getElementById('message');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // --- Init ---
+        // Set default year to next year
+        yearInput.value = new Date().getFullYear() + 1;
+        
+        // Initial populate of posts
+        updatePosts();
+
+        // --- Event Listeners ---
+        boardSelect.addEventListener('change', updatePosts);
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI Loading State
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Uploading...";
+            messageEl.innerText = "";
+
+            // Prepare Data
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('http://localhost:5000/api/members/add', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    messageEl.innerText = "✅ Member Added Successfully!";
+                    messageEl.className = "success";
+                    form.reset();
+                    yearInput.value = new Date().getFullYear() + 1; // Reset year logic
+                    updatePosts(); // Reset posts logic
+                } else {
+                    throw new Error(result.error || "Failed to add member");
+                }
+            } catch (error) {
+                console.error(error);
+                messageEl.innerText = "❌ Error: " + error.message;
+                messageEl.className = "error";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Add Member";
+            }
+        });
+
+        // --- Helper Functions ---
+        function updatePosts() {
+            const board = boardSelect.value;
+            let options = [];
+
+            if (board === 'Main') options = mainPosts;
+            else if (board === 'Assistant') options = assistantPosts;
+            else if (board === 'Member') options = ["Member"];
+            else options = ["Mentor", "Advisor"];
+
+            // Clear and fill select
+            postSelect.innerHTML = options
+                .map(post => `<option value="${post}">${post}</option>`)
+                .join('');
+        }
+    </script>
+</body>
+</html>
