@@ -9,8 +9,16 @@ const Hero = () => {
       
       <div className="relative z-10 container mx-auto px-6 text-center">
         <div className="inline-flex items-center px-4 py-2 mb-8 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-300 text-sm font-medium backdrop-blur-sm animate-fade-in-up">
-          <MapPin className="w-3 h-3 mr-2" />
-          Walchand College of Engineering, Sangli
+          <a
+            href="https://maps.app.goo.gl/FPKrfq1AiPWpDLQ77"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-6 py-2.5 rounded-full bg-green-600 text-white font-medium hover:bg-green-700 transition-all shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transform hover:-translate-y-0.5"
+          >
+            <MapPin className="w-4 h-4 mr-2" />
+              Walchand College of Engineering, Sangli
+            </a>
+
         </div>
         
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 tracking-tight leading-tight">
