@@ -13,7 +13,7 @@ const Hero = () => {
             href="https://maps.app.goo.gl/FPKrfq1AiPWpDLQ77"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center px-6 py-2.5 rounded-full bg-green-600 text-white font-medium hover:bg-green-700 transition-all shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transform hover:-translate-y-0.5"
+className="inline-flex items-center px-6 py-2.5 rounded-full bg-teal-600 text-white font-medium hover:bg-teal-700 transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transform hover:-translate-y-0.5"
           >
             <MapPin className="w-4 h-4 mr-2" />
               Walchand College of Engineering, Sangli

@@ -18,7 +18,6 @@ const StaffCard = ({ name, role, color, iconColor, image }) => (
     <p className="text-slate-400 text-sm mb-3">{role}</p>
     <div className={`h-1.5 rounded-lg bg-gradient-to-r ${color} mx-auto w-16 mb-4`}></div>
     <div className={`inline-flex justify-center ${iconColor}`}>
-      <MapPin size={20}/>
     </div>
 
   </div>
