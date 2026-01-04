@@ -6,7 +6,18 @@ import Bootcamp from "../assets/gallery/bootcamp.png";
 import GIM from "../assets/gallery/gim.jpeg";
 import Coffee from "../assets/gallery/coffee.png";
 import Contest from "../assets/gallery/contest.jpeg";
-
+import Arena1 from "../assets/gallery/arena1.jpeg";
+import Arena2 from "../assets/gallery/arena2.jpeg";
+import Arena3 from "../assets/gallery/arena3.jpeg";
+import Arena4 from "../assets/gallery/arena4.jpeg";
+import GIM1 from "../assets/gallery/gim1.jpeg";
+import GIM2 from "../assets/gallery/gim2.jpeg";
+import GIM3 from "../assets/gallery/gim3.jpeg";
+import GIM4 from "../assets/gallery/gim4.jpeg";
+import WCPC1 from "../assets/gallery/wcpc1.jpeg";
+import WCPC2 from "../assets/gallery/wcpc2.jpeg";
+import WCPC3 from "../assets/gallery/wcpc3.jpeg";
+import WCPC4 from "../assets/gallery/wcpc4.jpeg";
 
 const GallerySlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -16,6 +27,20 @@ const GallerySlider = () => {
     { id: 3, title: "GIM Inauguration", image: GIM },
     { id: 4, title: "Coffee With Chef Speaker", image: Coffee },
     { id: 5, title: "Coding Contest Arena", image: Contest },
+    { id: 6, title: "Contest Arena Highlights", image: Arena1 },
+    { id: 7, title: "Contest Arena Highlights", image: Arena2 },
+    { id: 8, title: "Contest Arena Highlights", image: Arena3 },
+    { id: 9, title: "Contest Arena Highlights", image: Arena4 },
+    { id: 10, title: "GIM Moments", image: GIM1 },  
+    { id: 11, title: "GIM Moments", image: GIM2 },
+    { id: 12, title: "GIM Moments", image: GIM3 },
+    { id: 13, title: "GIM Moments", image: GIM4 },
+    { id: 14, title: "WCPC", image: WCPC1 },
+    { id: 15, title: "WCPC", image: WCPC2 },
+    { id: 16, title: "WCPC Prize Distribution", image: WCPC3 },
+    { id: 17, title: "WCPC Prize Distribution", image: WCPC4 },
+
+
   ];
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);

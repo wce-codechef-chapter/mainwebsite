@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, ChevronRight, Trophy } from 'lucide-react';
+import { Calendar,Flame ,  Trophy } from 'lucide-react';
 import SectionHeader from './SectionHeader';
 
 const EventCard = ({ title, date, desc, tags, imageColor }) => (
@@ -11,9 +11,15 @@ const EventCard = ({ title, date, desc, tags, imageColor }) => (
           <Calendar className="w-3 h-3 mr-2" />
           {date}
         </div>
-        <div className="p-2 bg-slate-800 rounded-full group-hover:bg-teal-500/20 transition-colors">
-          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-400" />
-        </div>
+<div className="p-2 bg-slate-800 rounded-full transition-all duration-300 group-hover:scale-110 group-hover:bg-green-500/10 group-hover:shadow-[0_0_14px_rgba(34,197,94,0.2)]">
+  <Flame className="w-4 h-4 text-green-400/80 transition-all duration-300" />
+</div>
+
+
+
+
+
+
       </div>
       <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-teal-400 transition-colors">{title}</h3>
       <p className="text-slate-400 mb-8 leading-relaxed text-sm">
