@@ -10,7 +10,7 @@ const Team = () => {
 
   useEffect(() => {
     // Replace with your actual backend URL
-    axios.get('http://localhost:5000/api/members')
+    axios.get('https://datafeelupcwc.vercel.app/api/members')
       .then(res => {
         setMembers(res.data);
         setLoading(false);
