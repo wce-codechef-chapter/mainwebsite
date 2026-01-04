@@ -26,7 +26,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6 flex justify-between items-center">
         <Link to="/" className="flex items-center space-x-2 font-bold text-2xl text-white group cursor-pointer">
             <img src={Logo} alt="CodeChef WCE Logo" className="w-10 h-10 rounded-full object-cover" />
-              <span>CodeChef <span className="text-teal-400">WCE</span></span>
+              <span>CodeChef <span className="text-teal-400">WCE Chapter</span></span>
         </Link>
         <div className="hidden md:flex space-x-8 text-sm font-medium text-slate-300">
           {isHome ? (

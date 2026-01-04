@@ -39,7 +39,7 @@ const Footer = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-2 font-bold text-2xl text-white">
               <img src={Logo} alt="CodeChef WCE Logo" className="w-10 h-10 rounded-full object-cover" />
-              <span>CodeChef <span className="text-teal-400">WCE</span></span>
+              <span>CodeChef <span className="text-teal-400">WCE Chapter</span></span>
             </div>
             <p className="text-slate-400 leading-relaxed">
               "We are Chefs, We Cook Algorithms". <br/>
@@ -58,7 +58,6 @@ const Footer = () => {
             <ul className="space-y-4 text-slate-400">
               <li><a href="/" className="hover:text-teal-400 hover:pl-2 transition-all block">Home</a></li>
               <li><a href="/team" className="hover:text-teal-400 hover:pl-2 transition-all block">Our Team</a></li>
-              <li><a href="#" className="hover:text-teal-400 hover:pl-2 transition-all block">Leaderboard</a></li>
             </ul>
           </div>
           
