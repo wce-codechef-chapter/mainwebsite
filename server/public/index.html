@@ -138,8 +138,8 @@
             </div>
 
             <div class="form-group">
-                <label>Profile Image</label>
-                <input type="file" name="image" required accept="image/png, image/jpeg, image/jpg">
+                <label>Profile Image (Auto-Compressed)</label>
+                <input type="file" id="imageInput" required accept="image/png, image/jpeg, image/jpg">
             </div>
 
             <button type="submit" id="submitBtn">Add Member</button>
@@ -159,29 +159,68 @@
         const form = document.getElementById('memberForm');
         const messageEl = document.getElementById('message');
         const submitBtn = document.getElementById('submitBtn');
+        const fileInput = document.getElementById('imageInput');
 
         // --- Init ---
-        // Set default year to next year
         yearInput.value = new Date().getFullYear() + 1;
-        
-        // Initial populate of posts
         updatePosts();
 
         // --- Event Listeners ---
         boardSelect.addEventListener('change', updatePosts);
 
+        // --- COMPRESSION LOGIC (Mobile Fix) ---
+        const compressImage = (file) => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800; // Resize large images to width 800px
+                        const scaleSize = MAX_WIDTH / img.width;
+                        
+                        // Only resize if image is actually bigger than 800px
+                        canvas.width = (scaleSize < 1) ? MAX_WIDTH : img.width;
+                        canvas.height = (scaleSize < 1) ? img.height * scaleSize : img.height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        // Compress to JPEG at 70% quality
+                        canvas.toBlob((blob) => {
+                            resolve(blob);
+                        }, 'image/jpeg', 0.7); 
+                    }
+                }
+            });
+        };
+
+        // --- SUBMIT HANDLER ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             // UI Loading State
             submitBtn.disabled = true;
-            submitBtn.innerText = "Uploading...";
+            submitBtn.innerText = "Compressing & Uploading...";
             messageEl.innerText = "";
 
-            // Prepare Data
-            const formData = new FormData(form);
-
             try {
+                // 1. Create FormData from inputs
+                const formData = new FormData(form);
+
+                // 2. Compress the image manually
+                if (fileInput.files[0]) {
+                    const compressedBlob = await compressImage(fileInput.files[0]);
+                    // Replace the raw file with the compressed one
+                    formData.delete('image'); // Remove raw file if auto-added (though we didn't add name="image" to input to be safe)
+                    formData.append('image', compressedBlob, "compressed_image.jpg");
+                } else {
+                    throw new Error("Please select an image.");
+                }
+
+                // 3. Send to Backend
                 const response = await fetch('/api/members/add', {
                     method: 'POST',
                     body: formData
@@ -193,8 +232,9 @@
                     messageEl.innerText = "✅ Member Added Successfully!";
                     messageEl.className = "success";
                     form.reset();
-                    yearInput.value = new Date().getFullYear() + 1; // Reset year logic
-                    updatePosts(); // Reset posts logic
+                    yearInput.value = new Date().getFullYear() + 1; 
+                    updatePosts(); 
+                    fileInput.value = ""; // Clear file input manually
                 } else {
                     throw new Error(result.error || "Failed to add member");
                 }
@@ -218,7 +258,6 @@
             else if (board === 'Member') options = ["Member"];
             else options = ["Mentor", "Advisor"];
 
-            // Clear and fill select
             postSelect.innerHTML = options
                 .map(post => `<option value="${post}">${post}</option>`)
                 .join('');
