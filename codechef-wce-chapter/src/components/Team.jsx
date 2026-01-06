@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import SectionHeader from './SectionHeader';
 import { Linkedin, Github, Hash, Loader } from 'lucide-react';
@@ -14,17 +14,17 @@ const Team = () => {
     "Vice President", 
     "CP Lead", 
     "Social Lead", 
+    "Secretary",
     "CP Executive", 
     "Design Head", 
     "Revenue Manager", 
-    "Web Developer", 
-    "Secretary", 
-    "Club Service Director"
+    "Club Service Director",
+    "Web Developer"
   ];
 
   const assistantRoleOrder = [
     "Assistant Member", 
-    "Assistant Secretary", // trimmed space from your input for safety
+    "Assistant Secretary", 
     "Assistant Revenue Manager", 
     "Public Relationship Officer", 
     "Assistant Designer", 
@@ -32,18 +32,30 @@ const Team = () => {
     "Event Manager", 
     "Assistant CP Executive"
   ];
-
-  useEffect(() => {
+useEffect(() => {
     // Replace with your actual backend URL
     axios.get('https://datafeelupcwc.vercel.app/api/members')
       .then(res => {
-        // --- LOGIC: REMOVE DUPLICATES ---
+        // 1. SORT BY DATE DESCENDING (Newest First)
+        // This ensures the first version of a person we encounter is the latest one.
+        const sortedData = res.data.sort((a, b) => {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+
+        // 2. REMOVE DUPLICATES
         const uniqueMembersMap = new Map();
 
-        res.data.forEach(member => {
-            // Normalize name (lowercase, trim spaces)
+        sortedData.forEach(member => {
+            // Create a unique key based on Name + Year
+            // We do NOT include Board in the key, because if they changed boards, 
+            // we want the old board entry to be removed.
             const uniqueKey = `${member.name.trim().toLowerCase()}-${member.yearOfPassing}`;
-            uniqueMembersMap.set(uniqueKey, member);
+
+            // Only add if this key doesn't exist yet. 
+            // Since we sorted by newest first, the existing one is guaranteed to be the latest.
+            if (!uniqueMembersMap.has(uniqueKey)) {
+                uniqueMembersMap.set(uniqueKey, member);
+            }
         });
 
         const uniqueList = Array.from(uniqueMembersMap.values());
@@ -56,47 +68,98 @@ const Team = () => {
         setLoading(false);
       });
   }, []);
-
-  // --- LOGIC: AUTO-MOVE TO MENTORS ---
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth(); 
-
-  const isMentor = (member) => {
-    if (member.board === 'Mentor') return true;
-    if (member.yearOfPassing < currentYear) return true;
-    if (member.yearOfPassing === currentYear && currentMonth > 4) return true;
-    return false;
-  };
-
-  const currentTeam = members.filter(m => !isMentor(m));
+  // --- NEW LOGIC: TENURE & BOARD CLASSIFICATION ---
   
-  // --- SORTING LOGIC ---
-  
-  // Helper to find index/priority of a role
-  const getRolePriority = (role, orderArray) => {
-    const index = orderArray.indexOf(role);
-    // If role not found in list, put it at the end (999)
-    return index === -1 ? 999 : index;
-  };
+  // We use useMemo to recalculate this only when 'members' state changes
+  const { mainBoard, assistantBoard, memberBoard, mentors } = useMemo(() => {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0 = Jan, 4 = May, 5 = June, 6 = July
 
-  // 1. Sort Main Board
-  const mainBoard = currentTeam
-    .filter(m => m.board === 'Main')
-    .sort((a, b) => getRolePriority(a.post, mainRoleOrder) - getRolePriority(b.post, mainRoleOrder));
+    const categorized = {
+      mainBoard: [],
+      assistantBoard: [],
+      memberBoard: [],
+      mentors: []
+    };
 
-  // 2. Sort Assistant Board
-  const assistantBoard = currentTeam
-    .filter(m => m.board === 'Assistant')
-    .sort((a, b) => getRolePriority(a.post, assistantRoleOrder) - getRolePriority(b.post, assistantRoleOrder));
+    members.forEach(m => {
+      const pYear = m.yearOfPassing;
+      const board = m.board; // 'Main', 'Assistant', 'Member', 'Mentor'
 
-  // 3. Member Board (No specific sort)
-  const memberBoard = currentTeam.filter(m => m.board === 'Member');
+      // 1. MENTOR LOGIC
+      // Condition: Explicit Mentor OR (Main Board whose tenure ended)
+      // Tenure ended for Main = (PassYear == Cur+1 AND Month >= May) OR (PassYear < Cur+1)
+      const isMainExhausted = board === 'Main' && (
+        (pYear === currentYear + 1 && currentMonth >= 4) || 
+        (pYear < currentYear + 1)
+      );
 
-  // 4. Mentors (Sorted by Passing Year: Oldest First -> Ascending)
-  const mentors = members
-    .filter(m => isMentor(m))
-    .sort((a, b) => a.yearOfPassing - b.yearOfPassing);
+      if (board === 'Mentor' || isMainExhausted) {
+        // DATA TRANSFORMATION: If they were Main, change display props
+        const displayMember = isMainExhausted 
+          ? { ...m, post: 'Mentor', board: 'Mentor' } 
+          : m;
+        
+        categorized.mentors.push(displayMember);
+        return; // Stop processing this member
+      }
+
+      // 2. MAIN BOARD LOGIC
+      // Condition: (PassYear == Cur+2 AND Month >= May) OR (PassYear == Cur+1 AND Month < May)
+      const isMainActive = board === 'Main' && (
+        (pYear === currentYear + 2 && currentMonth >= 4) ||
+        (pYear === currentYear + 1 && currentMonth < 4)
+      );
+
+      if (isMainActive) {
+        categorized.mainBoard.push(m);
+        return;
+      }
+
+      // 3. ASSISTANT BOARD LOGIC
+      // Condition: (PassYear == Cur+3 AND Month >= July) OR (PassYear == Cur+2 AND Month < May)
+      const isAssistantActive = board === 'Assistant' && (
+        (pYear === currentYear + 3 && currentMonth >= 6) ||
+        (pYear === currentYear + 2 && currentMonth < 4)
+      );
+
+      if (isAssistantActive) {
+        categorized.assistantBoard.push(m);
+        return;
+      }
+
+      // 4. MEMBER BOARD LOGIC
+      // Condition: (PassYear == Cur+3 AND Month <= June) OR (PassYear == Cur+4 AND Month >= July)
+      const isMemberActive = board === 'Member' && (
+        (pYear === currentYear + 3 && currentMonth <= 5) ||
+        (pYear === currentYear + 4 && currentMonth >= 6)
+      );
+
+      if (isMemberActive) {
+        categorized.memberBoard.push(m);
+        return;
+      }
+
+      // If code reaches here, the member matches none of the criteria 
+      // (e.g., Assistant whose tenure ended). They are simply dropped.
+    });
+
+    // --- SORTING ---
+    const getRolePriority = (role, orderArray) => {
+        const index = orderArray.indexOf(role);
+        return index === -1 ? 999 : index;
+    };
+
+    return {
+      mainBoard: categorized.mainBoard.sort((a, b) => getRolePriority(a.post, mainRoleOrder) - getRolePriority(b.post, mainRoleOrder)),
+      assistantBoard: categorized.assistantBoard.sort((a, b) => getRolePriority(a.post, assistantRoleOrder) - getRolePriority(b.post, assistantRoleOrder)),
+      memberBoard: categorized.memberBoard, // No specific sort for general members
+      mentors: categorized.mentors.sort((a, b) => a.yearOfPassing - b.yearOfPassing) // Oldest first
+    };
+
+  }, [members, mainRoleOrder, assistantRoleOrder]);
+
 
   const MemberCard = ({ m }) => {
     let borderColor = "border-slate-800";
@@ -161,6 +224,10 @@ const Team = () => {
                     <div className="flex items-center mb-8"><div className="h-px bg-slate-800 flex-1"></div><span className="px-4 text-slate-500 text-sm font-bold uppercase tracking-widest">Executive Members</span><div className="h-px bg-slate-800 flex-1"></div></div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">{memberBoard.map(m => <MemberCard key={m._id} m={m} />)}</div>
                   </div>
+                )}
+                {/* Fallback if no one is active in current team */}
+                {mainBoard.length === 0 && assistantBoard.length === 0 && memberBoard.length === 0 && (
+                    <p className="text-center text-slate-500">Recruitment in progress. No active board members currently displayable.</p>
                 )}
               </div>
             ) : (
