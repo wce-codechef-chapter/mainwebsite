@@ -10,7 +10,7 @@ const Team = () => {
 
   // --- CONFIGURATION: ROLE PRIORITY ---
   const mainRoleOrder = [
-    "President", 
+   "President", 
     "Vice President", 
     "CP Lead", 
     "Social Lead", 
