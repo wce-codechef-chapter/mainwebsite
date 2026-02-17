@@ -1,4 +1,4 @@
 ﻿# mainwebsite
  website deployed link
- https://codechef-wce-chapter.vercel.app/
+https://codechef-wce-chapter.org/
 
