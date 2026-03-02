@@ -60,9 +60,9 @@ app.use(async (req, res, next) => {
 // --- 3. Routes ---
 
 // Serve the HTML Form at /register
-app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// app.get('/register', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
 
 // API Routes
 app.use('/api/members', memberRoutes);
